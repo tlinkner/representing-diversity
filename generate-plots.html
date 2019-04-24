@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>grid to pyramid</title>
+<style>
+body {font-family: sans-serif;}
+</style>
+</head>
+<div id="dl">DOWNLOAD</div>
+<div class="state-plot"></div>
+<body>
+<script src="./lib/d3.min.js"></script>
+<script src="./lib/d3-save-svg.min.js"></script>
+<script>
+
+function getEthColor(eth){
+
+  const data = [{
+    "ethnicity": "african-american"
+    , "color": "#F04E41"
+  }, {
+    "ethnicity": "asian-american"
+    , "color": "#E9A03A"
+  }, {
+    "ethnicity": "hispanic-american"
+    , "color": "#1FB99E"
+  }, {
+    "ethnicity": "native-american"
+    , "color": "#19627C"
+  }, {
+    "ethnicity": "other-multi-racial"
+    , "color": "#C13889"
+  }, {
+    "ethnicity": "pacific-islander"
+    , "color": "#FFD602"
+  }, {
+    "ethnicity": "white-american"
+    , "color": "#4468B1"
+  }, {
+    "ethnicity": "middle-eastern-american"
+    , "color": "#7d7bfe"
+  }, {
+    "ethnicity": "NA"
+    , "color": "#FFFFFF"
+  }]
+  const colorTmp = data.map(d => {
+      return [d.ethnicity,d.color]
+    });
+  const colorMap = new Map(colorTmp);
+  let c = colorMap.get(eth)
+  if (!eth) {c = "#FFFFFF";}
+  return c;
+}
+
+const voterPromise = d3.json('data/house-data.json');
+voterPromise.then(data=>{
+  
+  const districts = d3.nest()
+      .key(d =>d.id)
+      .entries(data);
+  
+  console.log(districts);
+  drawGrid(districts)
+  
+  const dl = d3.select('#dl')
+    .on('click',function(){
+      slowIterate(d3.selectAll('.chart').nodes());
+      console.log("Save plots")
+    });
+
+})
+
+// district grid ================================
+
+function drawGrid(data) {
+
+  const w = 230;
+  const h = 230;
+  
+  const dom = d3.select(".state-plot");
+
+  const nodes = dom.selectAll(".chart") 
+    .data(data);
+    
+  const nodesEnter = nodes.enter()
+    .append("svg")
+    .attr("class","chart")
+    .attr("width",w)
+    .attr("height",h)
+
+  nodes.merge(nodesEnter)
+    .attr("id",d=>d.key)
+    .each(function(d){
+      drawVoters(this,d.values);
+    })
+
+  nodes.exit()
+    .transition()
+    .duration(500)
+    .style("opacity",0)
+    .remove();
+    
+}
+
+
+
+// voters triangle ==============================
+
+function drawVoters(dom,data){
+
+  // bug: this doesn't appear to be working: stacking order is wrong.
+  dataSorted = data.sort((a,b) => a.voterEthnicityValue - b.voterEthnicityValue);
+
+  const plot = d3.select(dom);
+  const w = dom.clientWidth;
+  const h = dom.clientHeight;
+  const baseline = 100; // adjust vertical position
+
+  const center = {x: w/2, y: baseline};
+  const dist = 75;
+
+  // goal = usTotal / 435
+  // 325014505 / 435 = 747160   
+  const ethSum = d3.sum(data,d=>d.voterEthnicityValue)
+  const ratio = ethSum / 747160;
+  
+  // sohtahcoa
+  const theta = degToRad(45);
+  const opp = dist * ratio;
+  const hyp = opp / Math.sin(theta);
+
+  // use height as measure
+  const bVertex = findPoint(center, degToRad(270), 0);
+  const bLeft = findPoint(center, degToRad(270 + 45), hyp);
+  const bRight = findPoint(center, degToRad(270 - 45), hyp);
+  
+  // scaling function
+  const scaleEthData = d3.scaleLinear()
+    .domain([0, d3.sum(data, d=>d.voterEthnicityValue)])
+    .rangeRound([bLeft.x,bRight.x]);  
+  
+  const nodes = plot.selectAll(".node") 
+    .data(data, d=>d.voterEthnicity);
+    
+  // adjust
+  const ay = center.y - bRight.y + 100;
+
+  /* At this point I had to bread enter exit update 
+   * because the sort order wasn't updating.
+   * I could fix this by not drawing overlapping
+   * shapes. 
+   */
+   
+  const nodesRemove = plot.selectAll(".node")
+    .remove();
+    
+  const nodesFresh = plot.selectAll(".node")
+    .data(dataSorted, d=>d.voterEthnicity)
+    .enter()
+    .append("polygon")
+    .attr("class","node")
+    .attr("points",(d,i)=>{
+      let left = scaleEthData(d3.sum(dataSorted.slice(0,i),d=>d.voterEthnicityValue));
+      return `${left},${bLeft.y + ay}, ${bVertex.x},${bVertex.y + ay}, ${bRight.x},${bRight.y + ay}`;
+    })
+    .attr("data-state",d=>d.state)
+    .attr("data-ethnicity",d=>d.voterEthnicity)
+    .attr("data-ethnicity-value",d=>d.voterEthnicityValue)
+    .attr("fill", d=>getEthColor(d.voterEthnicity));
+    
+//  const nodesEnter = nodes.enter()
+//    .append("polygon")
+//    .attr("class","node")
+//    
+//  nodesEnter.merge(nodes)
+//    .attr("points",(d,i)=>{
+//      let left = scaleEthData(d3.sum(data.slice(0,i),d=>d.voterEthnicityValue));
+//      return `${left},${bLeft.y + ay}, ${bVertex.x},${bVertex.y + ay}, ${bRight.x},${bRight.y + ay}`;
+//    })
+//    .attr("data-state",d=>d.state)
+//    .attr("fill", d=>getEthColor(d.voterEthnicity));
+//  
+//  nodes.exit().remove();
+  
+  drawRep(dom,[data[0]],ay);
+
+}
+
+
+
+// rep triangle =================================
+
+function drawRep(dom,data,ay){
+
+  data = data[0];
+
+  const plot = d3.select(dom);
+  const w = dom.clientWidth;
+  const h = dom.clientHeight;
+  const baseline = 100; // adjust vertical position
+
+  const center = {x: w/2, y: baseline};
+  const dist = 75;
+
+  // get triangle points
+  let angleA = data.repPct * 45; // limit to angle
+  if (data.repParty == "R") {
+    angleA = angleA * -1;
+  }
+
+  // get triangle points
+  const aVertex = findPoint(center, degToRad(90), 0);
+  const aLeft = findPoint(center, degToRad(90 + 45 + angleA), dist);
+  const aRight = findPoint(center, degToRad(90 - 45 + angleA), dist);
+
+  // position for labels
+  const textAngle = findAngleAB(aLeft, aRight);
+  const textPos = findPoint(aLeft, textAngle + 90, 0);
+
+  // rep label
+  const repLabel = plot.selectAll('.repLabel')
+    .data([data]);
+
+  const repLabelEnter = repLabel.enter()
+    .append('text')
+    .attr('class', 'repLabel')
+    .datum(data)
+
+  repLabel.merge(repLabelEnter)
+    .text(d=>`Rep. ${d.repName}, ${d.repParty}`)
+    .attr('x',textPos.x)
+    .attr('y',textPos.y - 20 + ay)
+    .attr("transform",`rotate(${radToDeg(textAngle)}, ${textPos.x}, ${textPos.y + ay})`)
+    .attr('font-size','8px')
+    .style('font-weight','bold')
+    .style('font-family','IBM Plex Sans Condensed');
+
+  repLabel.exit()
+    .remove();
+
+  // district label
+  const distLabel = plot.selectAll('.distLabel')
+    .data([data]);
+
+  const distLabelEnter = distLabel.enter()
+    .append('text')
+    .attr('class', 'distLabel')
+    .datum(data)
+
+  distLabel.merge(distLabelEnter)
+    .text(d=>`${d.state}, District ${d.district}`)
+    .attr('x',textPos.x)
+    .attr('y',textPos.y - 8 + ay)
+    .attr("transform",`rotate(${radToDeg(textAngle)}, ${textPos.x}, ${textPos.y + ay})`)
+    .attr('font-size','8px')
+    .style('font-weight','regular')
+    .style('font-family','IBM Plex Sans Condensed')
+
+  distLabel.exit()
+    .remove();
+
+  // rep plot
+  const rep = plot.selectAll('.rep')
+    .data([data]);
+
+  const repEnter = rep.enter()
+    .append('polygon')
+    .attr('class', 'rep')
+    .datum(data)
+
+  rep.merge(repEnter)
+    .attr("points",`${aLeft.x},${aLeft.y + ay}, ${aVertex.x},${aVertex.y + ay}, ${aRight.x},${aRight.y + ay}`)
+    .attr("fill", d=>getEthColor(d.repEthnicity))
+    .attr("data-state",d=>d.state)
+    .attr("data-ethnicity",d=>d.repEthnicity)
+
+  rep.exit().remove();
+
+}
+
+
+
+// Utility funcitons ============================
+
+function degToRad(degrees) {
+  return degrees * (Math.PI/180);
+}
+
+function radToDeg(radians) {
+  return radians * (180/Math.PI);
+}
+
+function findPoint(center, angleRad, distance) {
+  return {
+    x: Math.cos(-angleRad) * distance + center.x,
+    y: Math.sin(-angleRad) * distance + center.y
+  }
+}
+
+function findAngleAB(a,b){
+  return Math.atan2(b.y - a.y, b.x - a.x);
+}
+
+function slowIterate(arr) {
+  if (arr.length === 0) {
+    return;
+  }
+  let fname = d3.select(arr[0]).attr('id');
+  console.log(fname); 
+  d3_save_svg.save(arr[0], {filename: fname})
+  setTimeout(() => {
+    slowIterate(arr.slice(1));
+  }, 500); 
+}
+
+
+
+</script>
+</body>
+</html>

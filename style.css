@@ -1,0 +1,243 @@
+/* reset ------------------------------------- */
+
+* {
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-weight: 400;
+}
+
+/* layout ------------------------------------ */
+
+.header {
+  margin: 0 auto;
+  padding: 30px 50px;
+  width: 980px;
+}
+
+.layout {
+  margin: 0 auto;
+}
+
+.footer {
+  margin: 0 auto;
+  padding: 30px 50px;
+  width: 980px;
+  font-size: 0.75em;
+  color: #aaaaaa;
+}
+
+.intro {
+  margin: 3em auto 3em auto;
+  padding: 0 30px;
+  width: 980px;
+}
+
+.body {}
+
+.columns {
+  display: flex;
+  flex-direction: row-reverse;
+	align-items: flex-start;
+  width: 100%;
+}
+
+.col {
+	flex: 1;
+}
+
+.col + .col {
+	flex: 0;
+	padding-top: 1.125em;
+  margin-right: 48px;
+  width: 320px;
+}
+
+/* elements ---------------------------------- */
+
+h1.title {
+  margin-bottom: 1em;
+  font-size: 32px;
+  font-family: "IBM Plex Serif", serif;
+	font-weight: 400;
+}
+
+.title span {
+	margin: 0 0.05em;
+	color: #aaaaaa;
+}
+
+h4 {
+  font-weight: bold;
+}
+
+h4 + p, p + p {
+  margin-top: 1em;
+}
+
+b {
+  font-weight: bold;
+}
+
+a {
+  color: currentColor;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+}
+
+a:hover {
+  color: #C13889;
+}
+
+.intro p {}
+
+.intro a {}
+
+.footer p {}
+
+.footer a {}
+
+.footer a:hover {
+  color: #C13889;
+}
+
+.us-chart {
+  width: 900px;
+  height: 900px;
+}
+
+.state-plot {
+  margin: 0 auto;
+  padding: 10px 0 100px 0;
+  display: flex;
+  flex-direction: row;
+  align-content: flex-start;
+  flex-wrap: wrap;
+	width: 920px;
+	min-height: 75vh;
+}
+
+@media screen and (min-width: 920px) {
+  .state-plot, .state-control {width: 920px}
+}
+@media screen and (min-width: 1150px) {
+  .state-plot, .state-control {width: 1150px}
+}
+@media screen and (min-width: 1380px) {
+  .state-plot, .state-control {width: 1380px}
+}
+@media screen and (min-width: 1610px) {
+  .state-plot, .state-control {width: 1610px}
+}
+@media screen and (min-width: 1840px) {
+  .state-plot, .state-control {width: 1840px}
+}
+
+.state-plot .plot {
+  width: 230px;
+  height: 230px;
+  float: left;
+}
+
+/* componenets ------------------------------- */
+
+.state-control {
+  margin: 0 auto;
+  padding: 30px 42px;
+}
+
+.state-control::after {
+	display: block;
+	content: "";
+	clear: both;
+}
+
+.state-control .legend {
+	margin-top: 0;
+	float: right;
+}
+
+.state-control .legend li {
+	font-size: 12px;
+}
+
+.ui-label {
+  display: block;
+  margin-top: 5px;
+  line-height: 1.5;
+}
+
+.ui-select {
+  border: 1px solid #C13889;
+  padding: 2px 8px;
+  position: relative;
+  width: 300px;
+  overflow: hidden;
+  background: #FFFFFF;
+}
+
+.ui-select::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 20px;
+  right: 12px;
+  box-sizing: border-box;
+  border-top: 0.5em solid #C13889;
+  border-right: 0.5em solid transparent;
+  border-bottom: 0 solid transparent;
+  border-left: 0.5em solid transparent;
+  width: 1em;
+  height: 1em;
+  z-index: +9;
+  pointer-events: none;
+}
+
+.ui-select select {
+  padding: 0;
+  width: 100%;
+  border: none;
+  box-shadow: none;
+  font-size: 32px;
+  font-family: "IBM Plex Serif", serif;
+  color: #C13889;
+  background: transparent;
+  background-image: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.ui-select select:focus {
+  outline: none;
+}
+
+.ui-select select option {
+  font-size: 16px;
+}
+
+.tooltip {
+  position: absolute;
+  padding: 10px;
+  font-size: 0.75em;
+  background: #EEEEEE;
+  z-index: +9;
+}
+
+ul.legend {
+  list-style: none;
+}
+
+ul.legend li {
+  list-style: none;
+}
+
+.legend-dot {
+  display: inline-block;
+  margin-right: 0.5em;
+  border-top: 0.5em solid white;
+  border-right: 0.5em solid white;
+  border-bottom: 0.5em solid transparent;
+  border-left: 0.5em solid white;
+  width: 1em;
+  height: 1em;
+}
