@@ -501,7 +501,7 @@ function drawRep(dom,data,ay){
   // get triangle points
 	// let angleA = data.repPct * 45; // limit to angle
   let angleA = (1 - data.repPct) * 90; // limit to angle
-  if (data.repParty == "R") {
+  if (data.repParty == "D") {
     angleA = angleA * -1;
   }
 
