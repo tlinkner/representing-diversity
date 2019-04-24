@@ -27,7 +27,7 @@ function getRepData(data){
           d.repEthnicity = d.values[0].repEthnicity;
         }
         return d;
-      })
+      });
 
     const repsSorted = reps.sort((a,b)=>{
       if(a.repEthnicity < b.repEthnicity) { return 1; }
@@ -44,7 +44,7 @@ function getElectorateData(data){
     const electorate = d3.nest()
       .key(d => d.voterEthnicity)
       .rollup(values => d3.sum(values, d => d.voterEthnicityValue))
-      .entries(data)
+      .entries(data);
 
     return electorate;
 }
@@ -78,13 +78,18 @@ function getEthColor(eth){
   }, {
     "ethnicity": "NA"
     , "color": "#FFFFFF"
-  }]
+  }];
+
   const colorTmp = data.map(d => {
       return [d.ethnicity,d.color]
     });
+
   const colorMap = new Map(colorTmp);
+
   let c = colorMap.get(eth)
-  if (!eth) {c = "#FFFFFF";}
+
+  if (!eth) {c = "#FFFFFF"}
+
   return c;
 }
 
@@ -100,7 +105,6 @@ function getDistrictsByState(data) {
       .entries(data);
 
   return districtsByState;
-
 }
 
 
@@ -129,9 +133,9 @@ globalDispatch.on('change:state', function(state){
     });
 });
 
-globalDispatch.call('change:state',null,"New York")
+globalDispatch.call('change:state',null,"New York");
 
-globalDispatch.call('set:grid',null)
+globalDispatch.call('set:grid',null);
 
 
 
@@ -140,10 +144,12 @@ globalDispatch.call('set:grid',null)
 const controller = new ScrollMagic.Controller();
 const pos = d3.select(".us-chart").node().getBoundingClientRect();
 
+console.log(pos.x);
+
 const scene = new ScrollMagic.Scene({
-    offset: 100
+    offset: pos.y - 100
 	})
-  //.addIndicators()
+  // .addIndicators() // ScrollMagic debug
 	.on('enter',e=>globalDispatch.call('set:pillar',null))
 	.on('leave',e=>{
     if(e.scrollDirection === "REVERSE") {
@@ -176,7 +182,7 @@ function drawHouseGrid(data, electorate){
       const line2 = `${j.state}, District ${j.district}`
       makeToolTip(line1,line2)
     })
-    .on("mouseout", destroyToolTip)
+    .on("mouseout", destroyToolTip);
 
 	nodesUpdate.merge(nodesEnter)
     .transition()
@@ -191,27 +197,26 @@ function drawHouseGrid(data, electorate){
       let theight = (interval-3)/2;
       return `${xpos},${ypos}, ${theight + xpos},${theight + ypos}, ${twidth + xpos},${ypos}`;
     })
-    .attr("fill", d=>getEthColor(d.repEthnicity))
+    .attr("fill", d=>getEthColor(d.repEthnicity));
 
 	nodesUpdate.exit().remove();
-	
+
 	const label = plot.selectAll(".repTitle")
 		.data([1]);
-		
+
 	const labelEnter = label.enter()
 		.append("text")
 		.attr("class","repTitle")
 		.attr("x",m.l)
-		.attr("y",12)
-		
-	label.merge(labelEnter)	
+		.attr("y",12);
+
+	label.merge(labelEnter)
 		.text("116th United States Congress House of Representatives")
     .attr('font-size','12px')
     .style('font-weight','bold')
     .style('font-family','IBM Plex Sans Condensed');
-		
-	label.exit().remove();	
 
+	label.exit().remove();
 }
 
 
@@ -246,10 +251,9 @@ function drawHouseTriangle(data, electorate){
 			// return `${Math.floor(left)},${m.t + m.t},${width / 2 + m.l},${height},${Math.ceil(right)},${m.t + m.t}`;
 			//}
     )
-    .attr("fill", d=>getEthColor(d.repEthnicity))
+    .attr("fill", d=>getEthColor(d.repEthnicity));
 
 	nodesUpdate.exit().remove();
-
 }
 
 
@@ -271,13 +275,13 @@ function drawElectorateTriangle(data){
 
 	const nodesEnter = nodesUpdate.enter()
     .append("polygon")
-    .attr("class","voter")
+    .attr("class","voter");
 
   nodesEnter
     .attr("opacity", 0)
     .transition()
     .duration(1000)
-    .attr("opacity", 1)
+    .attr("opacity", 1);
 
   nodesEnter
     .on("mouseover",d=>{
@@ -285,7 +289,7 @@ function drawElectorateTriangle(data){
       const line2 = addCommas(d.value);
       makeToolTip(line1,line2)
     })
-    .on("mouseout", destroyToolTip)
+    .on("mouseout", destroyToolTip);
 
 	nodesUpdate.merge(nodesEnter)
     .attr("points",(d,i)=>{
@@ -302,37 +306,35 @@ function drawElectorateTriangle(data){
     .attr("data-val",d=>d.value);
 
 	nodesUpdate.exit().remove();
-	
-	
+
 	const label = plot.selectAll(".voterTitle")
 		.data([1]);
-		
+
 	const labelEnter = label.enter()
-	
 		.append("text")
 		.attr("class","voterTitle")
 		.attr("x",m.l)
-		.attr("y",(height * 2) + 28)
-		
+		.attr("y",(height * 2) + 28);
+
 	labelEnter
 	   .attr("opacity", 0)
     .transition()
     .duration(1000)
-    .attr("opacity", 1)
+    .attr("opacity", 1);
 
-		
-	label.merge(labelEnter)	
+	label.merge(labelEnter)
 		.text("US Electorate")
     .attr('font-size','12px')
     .style('font-weight','bold')
     .style('font-family','IBM Plex Sans Condensed');
-		
-	label.exit().remove();		
 
+	label.exit().remove();
 }
 
 function destroyElectorateTriangle(){
   d3.selectAll('.voter')
+    .remove();
+  d3.selectAll('.voterTitle')
     .remove();
 }
 
@@ -363,14 +365,13 @@ function drawPlotControl(data,state=null){
         return "selected"
       }
     })
-    .html(d => d)
+    .html(d => d);
 
 	menu.exit().remove();
 
 	menu.on('change', function(){
 		globalDispatch.call('change:state',null,this.value);
 	});
-
 }
 
 
@@ -391,19 +392,18 @@ function drawGrid(data) {
     .append("svg")
     .attr("class","chart")
     .attr("width",w)
-    .attr("height",h)
+    .attr("height",h);
 
   nodes.merge(nodesEnter)
     .each(function(d){
       drawVoters(this,d.values);
-    })
+    });
 
   nodes.exit()
     .transition()
     .duration(500)
     .style("opacity",0)
     .remove();
-
 }
 
 
@@ -476,7 +476,7 @@ function drawVoters(dom,data){
       const line2 = addCommas(d.voterEthnicityValue);
       makeToolTip(line1,line2)
     })
-    .on("mouseout", destroyToolTip)
+    .on("mouseout", destroyToolTip);
 
   drawRep(dom,[dataSorted[0]],ay);
 
@@ -521,17 +521,17 @@ function drawRep(dom,data,ay){
 
 	const g = plot.append("g")
 		.attr("class","distGroup")
-		.attr("transform",`translate(${gVertex.x},${gVertex.y + ay})`)
+		.attr("transform",`translate(${gVertex.x},${gVertex.y + ay})`);
 
 	g.exit().remove();
 
-	const gg = g.append("g")
-	
+	const gg = g.append("g");
+
 	gg.transition()
 		.duration(3000)
 		.ease(d3.easeElasticOut)
-		.attr("transform",`rotate(${angleA})`)
-		
+		.attr("transform",`rotate(${angleA})`);
+
 	gg.exit().remove();
 
   // rep label
@@ -541,7 +541,7 @@ function drawRep(dom,data,ay){
   const repLabelEnter = repLabel.enter()
     .append('text')
     .attr('class', 'repLabel')
-    .datum(data)
+    .datum(data);
 
   repLabel.merge(repLabelEnter)
     .text(d=>`Rep. ${d.repName}, ${d.repParty}`)
@@ -561,7 +561,7 @@ function drawRep(dom,data,ay){
   const distLabelEnter = distLabel.enter()
     .append('text')
     .attr('class', 'distLabel')
-    .datum(data)
+    .datum(data);
 
   distLabel.merge(distLabelEnter)
     .text(d=>`${d.state}, District ${d.district}`)
@@ -569,7 +569,7 @@ function drawRep(dom,data,ay){
     .attr('y',textPos.y - 8)
     .attr('font-size','8px')
     .style('font-weight','regular')
-    .style('font-family','IBM Plex Sans Condensed')
+    .style('font-family','IBM Plex Sans Condensed');
 
   distLabel.exit()
     .remove();
@@ -581,7 +581,7 @@ function drawRep(dom,data,ay){
   const repEnter = rep.enter()
     .append('polygon')
     .attr('class', 'rep')
-    .datum(data)
+    .datum(data);
 
   repEnter
     .on("mouseover",d=>{
@@ -589,7 +589,7 @@ function drawRep(dom,data,ay){
       const line2 = `${Math.round(d.repPct * 100) }% of the vote`;
       makeToolTip(line1,line2)
     })
-    .on("mouseout", destroyToolTip)
+    .on("mouseout", destroyToolTip);
 
   rep.merge(repEnter)
     .attr("points",`${aLeft.x},${aLeft.y}, ${aVertex.x},${aVertex.y}, ${aRight.x},${aRight.y}`)
@@ -597,7 +597,6 @@ function drawRep(dom,data,ay){
     .attr("data-state",d=>d.state);
 
   rep.exit().remove();
-
 }
 
 
@@ -615,7 +614,7 @@ function makeToolTip(line1,line2=null){
   tt.merge(ttEnter)
     .html(line1 + "<br>" + line2)
     .style("left",`${d3.event.pageX + 20}px`)
-    .style("top",`${d3.event.pageY}px`)
+    .style("top",`${d3.event.pageY}px`);
 }
 
 function destroyToolTip(){
