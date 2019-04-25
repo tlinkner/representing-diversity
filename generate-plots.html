@@ -43,7 +43,7 @@ function getEthColor(eth){
   }, {
     "ethnicity": "NA"
     , "color": "#FFFFFF"
-  }]
+  }];
   const colorTmp = data.map(d => {
       return [d.ethnicity,d.color]
     });
@@ -138,7 +138,7 @@ function drawVoters(dom,data){
   // scaling function
   const scaleEthData = d3.scaleLinear()
     .domain([0, d3.sum(data, d=>d.voterEthnicityValue)])
-    .rangeRound([bLeft.x,bRight.x]);  
+    .rangeRound([0,bRight.x-bLeft.x]);
   
   const nodes = plot.selectAll(".node") 
     .data(data, d=>d.voterEthnicity);
@@ -162,26 +162,13 @@ function drawVoters(dom,data){
     .attr("class","node")
     .attr("points",(d,i)=>{
       let left = scaleEthData(d3.sum(dataSorted.slice(0,i),d=>d.voterEthnicityValue));
-      return `${left},${bLeft.y + ay}, ${bVertex.x},${bVertex.y + ay}, ${bRight.x},${bRight.y + ay}`;
+      let right = scaleEthData(d.voterEthnicityValue);
+      return `${bLeft.x + left},${bLeft.y + ay}, ${bVertex.x},${bVertex.y + ay}, ${bLeft.x + left + right},${bRight.y + ay}`;
     })
-    .attr("data-state",d=>d.state)
+		.attr("data-state",d=>d.state)
     .attr("data-ethnicity",d=>d.voterEthnicity)
     .attr("data-ethnicity-value",d=>d.voterEthnicityValue)
     .attr("fill", d=>getEthColor(d.voterEthnicity));
-    
-//  const nodesEnter = nodes.enter()
-//    .append("polygon")
-//    .attr("class","node")
-//    
-//  nodesEnter.merge(nodes)
-//    .attr("points",(d,i)=>{
-//      let left = scaleEthData(d3.sum(data.slice(0,i),d=>d.voterEthnicityValue));
-//      return `${left},${bLeft.y + ay}, ${bVertex.x},${bVertex.y + ay}, ${bRight.x},${bRight.y + ay}`;
-//    })
-//    .attr("data-state",d=>d.state)
-//    .attr("fill", d=>getEthColor(d.voterEthnicity));
-//  
-//  nodes.exit().remove();
   
   drawRep(dom,[data[0]],ay);
 
@@ -204,7 +191,8 @@ function drawRep(dom,data,ay){
   const dist = 75;
 
   // get triangle points
-  let angleA = data.repPct * 45; // limit to angle
+	// let angleA = data.repPct * 45; // limit to angle
+  let angleA = (1 - data.repPct) * 90; // limit to angle
   if (data.repParty == "R") {
     angleA = angleA * -1;
   }
