@@ -71,6 +71,12 @@ h4 {
   font-weight: bold;
 }
 
+p {
+	-webkit-hyphens: auto;
+	   -moz-hyphens: auto;
+	        hyphens: auto;
+}
+
 h4 + p, p + p {
   margin-top: 1em;
 }
