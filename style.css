@@ -113,29 +113,29 @@ a:hover {
   flex-direction: row;
   align-content: flex-start;
   flex-wrap: wrap;
-	width: 920px;
+	width: 835px;
 	min-height: 75vh;
 }
 
-@media screen and (min-width: 920px) {
-  .state-plot, .state-control {width: 920px}
+@media screen and (min-width: 835px) {
+  .state-plot, .state-control {width: 835px}
 }
-@media screen and (min-width: 1150px) {
-  .state-plot, .state-control {width: 1150px}
+@media screen and (min-width: 1140px) {
+  .state-plot, .state-control {width: 1140px}
 }
-@media screen and (min-width: 1380px) {
-  .state-plot, .state-control {width: 1380px}
+@media screen and (min-width: 1425px) {
+  .state-plot, .state-control {width: 1425px}
 }
-@media screen and (min-width: 1610px) {
-  .state-plot, .state-control {width: 1610px}
+@media screen and (min-width: 1710px) {
+  .state-plot, .state-control {width: 1710px}
 }
-@media screen and (min-width: 1840px) {
-  .state-plot, .state-control {width: 1840px}
+@media screen and (min-width: 1995px) {
+  .state-plot, .state-control {width: 1995px}
 }
 
 .state-plot .plot {
-  width: 230px;
-  height: 230px;
+  width: 285px;
+  height: 285px;
   float: left;
 }
 
@@ -143,7 +143,7 @@ a:hover {
 
 .state-control {
   margin: 0 auto;
-  padding: 30px 42px;
+  padding: 30px 70px;
 }
 
 .state-control::after {

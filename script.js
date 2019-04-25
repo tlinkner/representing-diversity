@@ -144,8 +144,6 @@ globalDispatch.call('set:grid',null);
 const controller = new ScrollMagic.Controller();
 const pos = d3.select(".us-chart").node().getBoundingClientRect();
 
-console.log(pos.x);
-
 const scene = new ScrollMagic.Scene({
     offset: pos.y - 100
 	})
@@ -164,12 +162,28 @@ const scene = new ScrollMagic.Scene({
 
 function drawHouseGrid(data, electorate){
 
+	const ethCounts = d3.nest()
+		.key(d=>d.repEthnicity)
+		.rollup(d=>d.length)
+		.entries(data)
+		.map(d=>{
+			return [d.key,d.value];
+		});
+		
+	const ethMap = new Map(ethCounts);
+		
+	const dataMerged = data.map(d=>{
+		d.ethCount = ethMap.get(d.repEthnicity);
+		return d;
+	})
+	.sort((a,b)=>b.ethCount - a.ethCount);
+	
   const cols = 29;
   const gridWidth = w - (m.l + m.r);
   const interval = gridWidth/cols ;
 
 	const nodesUpdate = plot.selectAll('.rep')
-		.data(data, d=>d.key);
+		.data(dataMerged, d=>d.key);
 
 	const nodesEnter = nodesUpdate.enter()
     .append("polygon")
@@ -225,10 +239,26 @@ function drawHouseGrid(data, electorate){
 
 function drawHouseTriangle(data, electorate){
 
+	const ethCounts = d3.nest()
+		.key(d=>d.repEthnicity)
+		.rollup(d=>d.length)
+		.entries(data)
+		.map(d=>{
+			return [d.key,d.value];
+		});
+		
+	const ethMap = new Map(ethCounts);
+		
+	const dataMerged = data.map(d=>{
+		d.ethCount = ethMap.get(d.repEthnicity);
+		return d;
+	})
+	.sort((a,b)=>b.ethCount - a.ethCount);
+
   const increment = width / data.length;
 
 	const nodesUpdate = plot.selectAll('.rep')
-		.data(data, d=>d.key);
+		.data(dataMerged, d=>d.key);
 
 	const nodesEnter = nodesUpdate.enter()
     .append("polygon")
@@ -380,8 +410,8 @@ function drawPlotControl(data,state=null){
 
 function drawGrid(data) {
 
-  const w = 230;
-  const h = 230;
+  const w = 285;
+  const h = 285;
 
   const dom = d3.select(".state-plot");
 
@@ -418,7 +448,7 @@ function drawVoters(dom,data){
   const plot = d3.select(dom);
   const w = dom.clientWidth;
   const h = dom.clientHeight;
-  const baseline = 100; // adjust vertical position
+  const baseline = 125; // adjust vertical position
 
   const center = {x: w/2, y: baseline};
   const dist = 75;
@@ -493,10 +523,10 @@ function drawRep(dom,data,ay){
   const plot = d3.select(dom);
   const w = dom.clientWidth;
   const h = dom.clientHeight;
-  const baseline = 100; // adjust vertical position
+  const baseline = 125; // adjust vertical position
 
   const center = {x: w/2, y: baseline};
-  const dist = 75;
+  const dist = 90;
 
   // get triangle points
 	// let angleA = data.repPct * 45; // limit to angle
@@ -547,7 +577,7 @@ function drawRep(dom,data,ay){
     .text(d=>`Rep. ${d.repName}, ${d.repParty}`)
     .attr('x',textPos.x)
     .attr('y',textPos.y - 20)
-    .attr('font-size','8px')
+    .attr('font-size','10px')
     .style('font-weight','bold')
     .style('font-family','IBM Plex Sans Condensed');
 
@@ -567,7 +597,7 @@ function drawRep(dom,data,ay){
     .text(d=>`${d.state}, District ${d.district}`)
     .attr('x',textPos.x)
     .attr('y',textPos.y - 8)
-    .attr('font-size','8px')
+    .attr('font-size','10px')
     .style('font-weight','regular')
     .style('font-family','IBM Plex Sans Condensed');
 
